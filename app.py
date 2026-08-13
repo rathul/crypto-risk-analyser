@@ -136,7 +136,7 @@ st.markdown("""
 # ---------- HEADER ----------
 with st.container(border=True):
     col1, col2 = st.columns([1, 3])
-    ..., unsafe_allow_html=True)
+    ..., unsafe_allow_html=True
 
 # ---------- INPUT CARD ----------
 with st.container(border=True):
