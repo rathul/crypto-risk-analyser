@@ -123,20 +123,26 @@ st.markdown("""
         color: white;
         border: 1px solid #2a2a38;
         border-radius: 10px;
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+    background-color: #16161f;
+    border: 1px solid #2a2a38 !important;
+    border-radius: 16px !important;
+    padding: 10px;
+}
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------- HEADER ----------
-st.markdown('<div class="main-title">Crypto Transaction Risk Analyser</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Paste a wallet address to check its transaction risk profile.</div>', unsafe_allow_html=True)
+with st.container(border=True):
+    col1, col2 = st.columns([1, 3])
+    ..., unsafe_allow_html=True)
 
 # ---------- INPUT CARD ----------
-with st.container():
-    st.markdown('<div class="card">', unsafe_allow_html=True)
+with st.container(border=True):
     wallet = st.text_input("Wallet address", placeholder="0x...")
     analyze = st.button("Analyze Wallet")
-    st.markdown('</div>', unsafe_allow_html=True)
+    
 
 if analyze:
     if not wallet:
@@ -182,5 +188,6 @@ if analyze:
             st.markdown(f'<div class="risk-label">Recent Transactions ({len(txs)} found)</div>', unsafe_allow_html=True)
             st.dataframe(txs[:20], use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
+            
 
 st.caption("⚠️ AI-assisted heuristic analysis, not a substitute for professional forensic tools.")
