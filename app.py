@@ -134,9 +134,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------- HEADER ----------
-with st.container(border=True):
-    col1, col2 = st.columns([1, 3])
-    ..., unsafe_allow_html=True
+# ---------- HEADER ----------
+# FIXED: Replaced 'with' with a direct markdown print since it didn't contain anything
+st.markdown('<div class="card"><div class="main-title">Crypto Risk Analyser</div><div class="subtitle">Analyze recent on-chain transactions for risk signals</div></div>', unsafe_allow_html=True)
 
 # ---------- INPUT CARD ----------
 with st.container(border=True):
