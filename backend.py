@@ -51,7 +51,6 @@ def calculate_risk_breakdown(txs):
     timestamps = sorted([int(tx["timeStamp"]) for tx in txs])
     addresses = [tx["to"] for tx in txs if tx["to"]]
 
-    # Velocity: how close together are transactions? (avg seconds between txns)
     gaps = [timestamps[i+1] - timestamps[i] for i in range(len(timestamps)-1)]
     avg_gap = sum(gaps) / len(gaps) if gaps else 999999
     if avg_gap < 60:
@@ -61,7 +60,6 @@ def calculate_risk_breakdown(txs):
     else:
         velocity_score, velocity_label = 5, "Low"
 
-    # Volume anomaly: how much do transaction sizes vary?
     nonzero_values = [v for v in values if v > 0]
     if nonzero_values:
         max_val = max(nonzero_values)
@@ -76,7 +74,6 @@ def calculate_risk_breakdown(txs):
     else:
         volume_score, volume_label = 5, "Low"
 
-    # Address concentration: is money going to few addresses repeatedly?
     address_counts = Counter(addresses)
     if address_counts:
         top_freq = address_counts.most_common(1)[0][1]
@@ -90,7 +87,6 @@ def calculate_risk_breakdown(txs):
     else:
         concentration_score, concentration_label = 5, "Low"
 
-    # Pattern risk: failed transactions + repeated identical amounts (bot-like)
     failed_count = sum(1 for tx in txs if tx["isError"] == "1")
     value_counts = Counter(values)
     most_repeated = value_counts.most_common(1)[0][1] if value_counts else 0
@@ -112,6 +108,7 @@ def calculate_risk_breakdown(txs):
             {"name": "Pattern Risk", "label": pattern_label, "score": pattern_score, "max": 25},
         ]
     }
+
 
 def benford_analysis(txs):
     """Returns observed leading-digit distribution vs Benford's Law expected distribution."""
@@ -136,31 +133,13 @@ def benford_analysis(txs):
 
     return digits, observed, expected
 
-    def timeline_data(txs):
-        """Returns dates and transaction values for a timeline chart, oldest to newest."""
+
+def timeline_data(txs):
+    """Returns dates and transaction values for a timeline chart, oldest to newest."""
     sorted_txs = sorted(txs, key=lambda tx: int(tx["timeStamp"]))
     dates = [datetime.utcfromtimestamp(int(tx["timeStamp"])).strftime("%Y-%m-%d") for tx in sorted_txs]
     values = [int(tx["value"]) / 10**18 for tx in sorted_txs]
     return dates, values
-
-def benford_analysis(txs):
-    """Returns observed leading-digit distribution vs Benford's Law expected distribution."""
-    values = [int(tx["value"]) / 10**18 for tx in txs if int(tx["value"]) > 0]
-    leading_digits = []
-    for v in values:
-        s = f"{v:.10f}".lstrip("0.").lstrip("0")
-        if s and s[0].isdigit() and s[0] != "0":
-            leading_digits.append(int(s[0]))
-
-    observed_counts = Counter(leading_digits)
-    total = len(leading_digits)
-
-    observed = []
-    expected = []
-    digits = list(range(1, 10))
-    for d in digits:
-        observed_pct = (observed_counts.get(d, 0) / total * 100) if total > 0 else 0
-        expected_pct = __import__("math").log10(1 + 1/d) * 100            
 
 
 def analyze_risk(transactions):
@@ -190,6 +169,8 @@ def analyze_risk(transactions):
         messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content
+
+
 def generate_report(wallet, breakdown, ai_findings):
     lines = []
     lines.append("CRYPTO TRANSACTION RISK REPORT")
