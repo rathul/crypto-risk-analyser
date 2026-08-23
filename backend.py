@@ -137,30 +137,7 @@ def calculate_risk_breakdown(txs):
                 )
 
                 st.plotly_chart(fig2, use_container_width=True)
-              # ---------- TRANSACTION TIMELINE ----------
-    with st.container(border=True):
-                st.markdown('<div class="risk-label">Transaction Timeline</div>', unsafe_allow_html=True)
-
-                dates, values = timeline_data(txs)
-
-                fig2 = go.Figure()
-                fig2.add_trace(go.Scatter(
-                    x=dates,
-                    y=values,
-                    mode="lines+markers",
-                    line=dict(color="#8b7cf6", width=2),
-                    marker=dict(size=5)
-                ))
-                fig2.update_layout(
-                    plot_bgcolor="#16161f",
-                    paper_bgcolor="#16161f",
-                    font=dict(color="#e6e6f0"),
-                    xaxis=dict(title="Date", gridcolor="#2a2a38"),
-                    yaxis=dict(title="Amount (ETH)", gridcolor="#2a2a38"),
-                    margin=dict(t=20, b=20)
-                )
-
-                st.plotly_chart(fig2, use_container_width=True)              
+           
 def benford_analysis(txs):
     def timeline_data(txs):
         """Returns dates and transaction values for a timeline chart, oldest to newest."""
@@ -185,19 +162,6 @@ def benford_analysis(txs):
     for d in digits:
         observed_pct = (observed_counts.get(d, 0) / total * 100) if total > 0 else 0
         expected_pct = __import__("math").log10(1 + 1/d) * 100            
-
-        # ---------- DOWNLOAD REPORT ----------
-        report_text = generate_report(wallet, breakdown, ai_findings)
-        st.download_button(
-                label="Download Report",
-                data=report_text,
-                file_name=f"risk_report_{wallet[:8]}.txt",
-                mime="text/plain"
-            )
-        observed.append(observed_pct)
-        expected.append(expected_pct)
-
-    return digits, observed, expected
 
 
 def analyze_risk(transactions):
