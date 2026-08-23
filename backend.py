@@ -114,12 +114,36 @@ def calculate_risk_breakdown(txs):
     }
 
 def benford_analysis(txs):
+    """Returns observed leading-digit distribution vs Benford's Law expected distribution."""
+    values = [int(tx["value"]) / 10**18 for tx in txs if int(tx["value"]) > 0]
+    leading_digits = []
+    for v in values:
+        s = f"{v:.10f}".lstrip("0.").lstrip("0")
+        if s and s[0].isdigit() and s[0] != "0":
+            leading_digits.append(int(s[0]))
+
+    observed_counts = Counter(leading_digits)
+    total = len(leading_digits)
+
+    observed = []
+    expected = []
+    digits = list(range(1, 10))
+    for d in digits:
+        observed_pct = (observed_counts.get(d, 0) / total * 100) if total > 0 else 0
+        expected_pct = __import__("math").log10(1 + 1/d) * 100
+        observed.append(observed_pct)
+        expected.append(expected_pct)
+
+    return digits, observed, expected
+
     def timeline_data(txs):
         """Returns dates and transaction values for a timeline chart, oldest to newest."""
     sorted_txs = sorted(txs, key=lambda tx: int(tx["timeStamp"]))
     dates = [datetime.utcfromtimestamp(int(tx["timeStamp"])).strftime("%Y-%m-%d") for tx in sorted_txs]
     values = [int(tx["value"]) / 10**18 for tx in sorted_txs]
     return dates, values
+
+def benford_analysis(txs):
     """Returns observed leading-digit distribution vs Benford's Law expected distribution."""
     values = [int(tx["value"]) / 10**18 for tx in txs if int(tx["value"]) > 0]
     leading_digits = []
