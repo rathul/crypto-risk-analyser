@@ -2,3 +2,9 @@ streamlit
 requests
 groq
 python-dotenv
+
+streamlit
+requests
+groq
+python-dotenv
+plotly

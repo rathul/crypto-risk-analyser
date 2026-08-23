@@ -1,5 +1,6 @@
 import streamlit as st
-from backend import get_transactions, clean_transactions, calculate_risk_breakdown, analyze_risk
+import plotly.graph_objects as go
+from backend import get_transactions, clean_transactions, calculate_risk_breakdown, analyze_risk, benford_analysis
 
 st.set_page_config(page_title="Crypto Risk Analyser", layout="wide")
 
@@ -125,5 +126,37 @@ if analyze:
                 st.markdown(f'<div class="risk-label">Recent Transactions ({len(txs)} found)</div>', unsafe_allow_html=True)
                 clean_txs = clean_transactions(txs)
                 st.dataframe(clean_txs[:20], use_container_width=True)
+                            # ---------- BENFORD'S LAW ANALYSIS ----------
+            with st.container(border=True):
+                st.markdown('<div class="risk-label">Benford\'s Law Analysis</div>', unsafe_allow_html=True)
+                st.caption("Compares the leading digits of transaction amounts against the distribution expected in natural, unmanipulated financial data. Large deviations can indicate artificial or fabricated transaction patterns.")
+
+                digits, observed, expected = benford_analysis(txs)
+
+                fig = go.Figure()
+                fig.add_trace(go.Bar(
+                    x=digits,
+                    y=observed,
+                    name="Observed",
+                    marker_color="#4f6ef7"
+                ))
+                fig.add_trace(go.Scatter(
+                    x=digits,
+                    y=expected,
+                    name="Expected (Benford's Law)",
+                    mode="lines+markers",
+                    line=dict(color="#f87171", width=2)
+                ))
+                fig.update_layout(
+                    plot_bgcolor="#16161f",
+                    paper_bgcolor="#16161f",
+                    font=dict(color="#e6e6f0"),
+                    xaxis=dict(title="Leading Digit", tickmode="linear", dtick=1, gridcolor="#2a2a38"),
+                    yaxis=dict(title="Frequency (%)", gridcolor="#2a2a38"),
+                    legend=dict(bgcolor="rgba(0,0,0,0)"),
+                    margin=dict(t=20, b=20)
+                )
+
+                st.plotly_chart(fig, use_container_width=True)
 
 st.caption("⚠️ AI-assisted heuristic analysis, not a substitute for professional forensic tools.")
